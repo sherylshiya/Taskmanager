@@ -1,6 +1,30 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import os
+
+app = Flask(__name__)
+
+# Database connection helper
+def get_db_connection():
+    conn_str = os.environ.get("AZURE_POSTGRESQL_CONNECTIONSTRING")
+    try:
+        if conn_str:
+            conn = psycopg2.connect(conn_str)
+        else:
+            conn = psycopg2.connect(
+                user=os.environ.get("DB_USER", "your_pg_user"),
+                password=os.environ.get("DB_PASS", "your_password"),
+                host=os.environ.get("DB_HOST", "taskmanager.postgres.database.azure.com"),
+                port=os.environ.get("DB_PORT", 5432),
+                database=os.environ.get("DB_NAME", "postgres"),
+                sslmode='require'
+            )
+        return conn
+    except Exception as e:
+        print(f"Error connecting to DB: {e}")
+        raise
+
+# Initialize DB (create table if not exists)
 def init_db():
     try:
         with get_db_connection() as conn:
@@ -17,46 +41,11 @@ def init_db():
     except Exception as e:
         print(f"Database initialization failed: {e}")
 
-
-app = Flask(__name__)
-
+# Run DB initialization on startup
 with app.app_context():
     init_db()
 
-# --- DB Config from environment variables (set in Azure) ---
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_NAME = os.environ.get("DB_NAME", "taskdb")
-DB_USER = os.environ.get("DB_USER", "postgres")
-DB_PASS = os.environ.get("DB_PASS", "password")
-DB_PORT = os.environ.get("DB_PORT", "5432")  # default PostgreSQL port
-
-# --- Helper: Get DB connection ---
-def get_db_connection():
-    conn_str = os.environ.get("AZURE_POSTGRESQL_CONNECTIONSTRING")
-    try:
-        if conn_str:
-            # Connect using the full connection string for Azure
-            conn = psycopg2.connect(conn_str)
-        else:
-            conn = psycopg2.connect(
-                host=DB_HOST,
-                database=DB_NAME,
-                user=DB_USER,
-                password=DB_PASS,
-                port=DB_PORT,
-                sslmode="require"
-            )
-        return conn
-    except Exception as e:
-        print(f"Error connecting to DB: {e}")
-        raise
-
-# --- Initialize DB (create table if not exists) ---
-
-# --- Run DB initialization once before first request ---
-
-
-# --- Routes ---
+# Routes
 @app.route("/")
 def index():
     try:
@@ -124,7 +113,6 @@ def delete(task_id):
     except Exception as e:
         return f"Failed to delete task: {e}", 500
 
-# --- Run App ---
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
