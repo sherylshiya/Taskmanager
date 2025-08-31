@@ -4,6 +4,9 @@ import os
 
 app = Flask(__name__)
 
+with app.app_context():
+    init_db()
+
 # --- DB Config from environment variables (set in Azure) ---
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_NAME = os.environ.get("DB_NAME", "taskdb")
@@ -50,9 +53,7 @@ def init_db():
         print(f"Database initialization failed: {e}")
 
 # --- Run DB initialization once before first request ---
-@app.before_first_request
-def setup():
-    init_db()
+
 
 # --- Routes ---
 @app.route("/")
