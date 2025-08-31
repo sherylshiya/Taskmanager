@@ -1,34 +1,39 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import os
-import urllib.parse
 
 app = Flask(__name__)
 
-# --- DB Config from Service Connector / environment variable ---
-# Azure Service Connector injects the full connection string as an environment variable
-# Example variable name: POSTGRESQL_CONNECTIONSTRING
-
-DB_CONN_STR = os.environ.get("AZURE_POSTGRESQL_CONNECTIONSTRING")
+# --- DB Config from environment variable ---
+DB_CONN_STR = os.environ.get("POSTGRESQL_CONNECTIONSTRING")
 if not DB_CONN_STR:
     raise ValueError("POSTGRESQL_CONNECTIONSTRING environment variable not set")
 
+# --- Helper: Get DB connection ---
 def get_db_connection():
     return psycopg2.connect(DB_CONN_STR)
+
 # --- Initialize DB (create table if not exists) ---
 def init_db():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('''
-        CREATE TABLE IF NOT EXISTS tasks (
-            id SERIAL PRIMARY KEY,
-            title TEXT NOT NULL,
-            status TEXT NOT NULL
-        );
-    ''')
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS tasks (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                status TEXT NOT NULL
+            );
+        ''')
+        conn.commit()
+        cur.close()
+        conn.close()
+        print("✅ tasks table ready")
+    except Exception as e:
+        print(f"❌ Error initializing DB: {e}")
+
+# --- Ensure table exists on every startup ---
+init_db()
 
 # --- Routes ---
 @app.route("/")
@@ -94,5 +99,4 @@ def delete(task_id):
 
 # --- Run App ---
 if __name__ == "__main__":
-    init_db()  # only runs once when app starts
     app.run(debug=True, host="0.0.0.0", port=5000)
