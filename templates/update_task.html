@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Task</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Update Task</h1>
+
+    {% if task %}
+        <form method="POST">
+            <label for="title">Task Title:</label><br>
+            <input type="text" id="title" name="title" value="{{ task[1] }}" required><br><br>
+            <button type="submit">Update</button>
+        </form>
+    {% else %}
+        <p>Task not found.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('index') }}">Back to Task List</a>
+</body>
+</html>
