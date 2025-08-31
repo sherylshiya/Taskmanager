@@ -1,6 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import os
+def init_db():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute('''
+                    CREATE TABLE IF NOT EXISTS tasks (
+                        id SERIAL PRIMARY KEY,
+                        title TEXT NOT NULL,
+                        status TEXT NOT NULL
+                    );
+                ''')
+                conn.commit()
+        print("Database initialized successfully.")
+    except Exception as e:
+        print(f"Database initialization failed: {e}")
+
 
 app = Flask(__name__)
 
@@ -36,21 +52,6 @@ def get_db_connection():
         raise
 
 # --- Initialize DB (create table if not exists) ---
-def init_db():
-    try:
-        with get_db_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute('''
-                    CREATE TABLE IF NOT EXISTS tasks (
-                        id SERIAL PRIMARY KEY,
-                        title TEXT NOT NULL,
-                        status TEXT NOT NULL
-                    );
-                ''')
-                conn.commit()
-        print("Database initialized successfully.")
-    except Exception as e:
-        print(f"Database initialization failed: {e}")
 
 # --- Run DB initialization once before first request ---
 
