@@ -8,17 +8,13 @@ app = Flask(__name__)
 # --- DB Config from Service Connector / environment variable ---
 # Azure Service Connector injects the full connection string as an environment variable
 # Example variable name: POSTGRESQL_CONNECTIONSTRING
+
 DB_CONN_STR = os.environ.get("POSTGRESQL_CONNECTIONSTRING")
-
 if not DB_CONN_STR:
-    # fallback for local testing
-    DB_CONN_STR = "postgresql://postgres:password@localhost:5432/taskdb?sslmode=require"
+    raise ValueError("POSTGRESQL_CONNECTIONSTRING environment variable not set")
 
-# --- Helper: Get DB connection ---
 def get_db_connection():
-    conn = psycopg2.connect(DB_CONN_STR)
-    return conn
-
+    return psycopg2.connect(DB_CONN_STR)
 # --- Initialize DB (create table if not exists) ---
 def init_db():
     conn = get_db_connection()
