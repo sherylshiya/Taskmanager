@@ -1,26 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import os
+import urllib.parse
 
 app = Flask(__name__)
 
-# --- DB Config from environment variables (set in Azure) ---
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_NAME = os.environ.get("DB_NAME", "taskdb")
-DB_USER = os.environ.get("DB_USER", "postgres")
-DB_PASS = os.environ.get("DB_PASS", "password")
-DB_PORT = os.environ.get("DB_PORT", "5432")  # default PostgreSQL port
+# --- DB Config from Service Connector / environment variable ---
+# Azure Service Connector injects the full connection string as an environment variable
+# Example variable name: POSTGRESQL_CONNECTIONSTRING
+DB_CONN_STR = os.environ.get("POSTGRESQL_CONNECTIONSTRING")
+
+if not DB_CONN_STR:
+    # fallback for local testing
+    DB_CONN_STR = "postgresql://postgres:password@localhost:5432/taskdb?sslmode=require"
 
 # --- Helper: Get DB connection ---
 def get_db_connection():
-    conn = psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS,
-        port=DB_PORT,
-        sslmode="require"  # Azure requires SSL
-    )
+    conn = psycopg2.connect(DB_CONN_STR)
     return conn
 
 # --- Initialize DB (create table if not exists) ---
