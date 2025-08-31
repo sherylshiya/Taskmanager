@@ -9,7 +9,7 @@ app = Flask(__name__)
 # Azure Service Connector injects the full connection string as an environment variable
 # Example variable name: POSTGRESQL_CONNECTIONSTRING
 
-DB_CONN_STR = os.environ.get("POSTGRESQL_CONNECTIONSTRING")
+DB_CONN_STR = os.environ.get("AZURE_POSTGRESQL_CONNECTIONSTRING")
 if not DB_CONN_STR:
     raise ValueError("POSTGRESQL_CONNECTIONSTRING environment variable not set")
 
