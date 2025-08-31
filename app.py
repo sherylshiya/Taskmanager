@@ -4,11 +4,12 @@ import os
 
 app = Flask(__name__)
 
-# --- DB Config from environment variables ---
+# --- DB Config from environment variables (set in Azure) ---
 DB_HOST = os.environ.get("DB_HOST", "localhost")
 DB_NAME = os.environ.get("DB_NAME", "taskdb")
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASS = os.environ.get("DB_PASS", "password")
+DB_PORT = os.environ.get("DB_PORT", "5432")  # default PostgreSQL port
 
 # --- Helper: Get DB connection ---
 def get_db_connection():
@@ -16,7 +17,9 @@ def get_db_connection():
         host=DB_HOST,
         database=DB_NAME,
         user=DB_USER,
-        password=DB_PASS
+        password=DB_PASS,
+        port=DB_PORT,
+        sslmode="require"  # Azure requires SSL
     )
     return conn
 
@@ -99,5 +102,5 @@ def delete(task_id):
 
 # --- Run App ---
 if __name__ == "__main__":
-    init_db()
+    init_db()  # only runs once when app starts
     app.run(debug=True, host="0.0.0.0", port=5000)
