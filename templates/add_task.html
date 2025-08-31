@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Add New Task</h2>
+<form method="POST">
+    <label for="title">Task Title:</label>
+    <input type="text" name="title" required>
+    <button type="submit">Add</button>
+</form>
+{% endblock %}

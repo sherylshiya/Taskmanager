@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Byte-compiled / cache
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.tmp
+
+# Unit test / coverage reports
+.coverage
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Environment files
+.env
+*.env
+
+# SQLite / local DBs
+*.db
+*.sqlite3
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log

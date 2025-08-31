@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>All Tasks</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for task in tasks %}
+    <tr>
+        <td>{{ task[0] }}</td>
+        <td>{{ task[1] }}</td>
+        <td>{{ task[2] }}</td>
+        <td>
+            <a href="{{ url_for('update_task', task_id=task[0]) }}">✅ Complete</a> |
+            <a href="{{ url_for('delete', task_id=task[0]) }}">❌ Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
