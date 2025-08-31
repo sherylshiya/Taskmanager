@@ -12,11 +12,11 @@ def get_db_connection():
             conn = psycopg2.connect(conn_str)
         else:
             conn = psycopg2.connect(
-                user=os.environ.get("DB_USER", "your_pg_user"),
-                password=os.environ.get("DB_PASS", "your_password"),
-                host=os.environ.get("DB_HOST", "taskmanager.postgres.database.azure.com"),
-                port=os.environ.get("DB_PORT", 5432),
-                database=os.environ.get("DB_NAME", "postgres"),
+                user=os.environ.get("DB_USER"),
+                password=os.environ.get("DB_PASS"),
+                host=os.environ.get("DB_HOST"),
+                port=os.environ.get("DB_PORT"),
+                database=os.environ.get("DB_NAME"),
                 sslmode='require'
             )
         return conn
