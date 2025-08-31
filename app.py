@@ -4,35 +4,41 @@ import os
 
 app = Flask(__name__)
 
-# --- DB Config from environment variable ---
-DB_CONN_STR = os.environ.get("POSTGRESQL_CONNECTIONSTRING")
-if not DB_CONN_STR:
-    raise ValueError("POSTGRESQL_CONNECTIONSTRING environment variable not set")
+# --- DB Config from environment variables (set in Azure) ---
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_NAME = os.environ.get("DB_NAME", "taskdb")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASS = os.environ.get("DB_PASS", "password")
+DB_PORT = os.environ.get("DB_PORT", "5432")  # default PostgreSQL port
 
 # --- Helper: Get DB connection ---
 def get_db_connection():
-    return psycopg2.connect(DB_CONN_STR)
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS,
+        port=DB_PORT,
+        sslmode="require"  # Azure requires SSL
+    )
+    return conn
 
 # --- Initialize DB (create table if not exists) ---
 def init_db():
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS tasks (
-                id SERIAL PRIMARY KEY,
-                title TEXT NOT NULL,
-                status TEXT NOT NULL
-            );
-        ''')
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("✅ tasks table ready")
-    except Exception as e:
-        print(f"❌ Error initializing DB: {e}")
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            status TEXT NOT NULL
+        );
+    ''')
+    conn.commit()
+    cur.close()
+    conn.close()
 
-# --- Ensure table exists on every startup ---
+# --- Run DB initialization immediately ---
 init_db()
 
 # --- Routes ---
@@ -97,6 +103,6 @@ def delete(task_id):
     conn.close()
     return redirect(url_for("index"))
 
-# --- Run App ---
+# --- Run App locally ---
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
