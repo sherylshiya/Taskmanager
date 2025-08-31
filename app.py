@@ -13,15 +13,20 @@ DB_PORT = os.environ.get("DB_PORT", "5432")  # default PostgreSQL port
 
 # --- Helper: Get DB connection ---
 def get_db_connection():
+    conn_str = os.environ.get("AZURE_POSTGRESQL_CONNECTIONSTRING")
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS,
-            port=DB_PORT,
-            sslmode="require"  # Azure requires SSL
-        )
+        if conn_str:
+            # Connect using the full connection string for Azure
+            conn = psycopg2.connect(conn_str)
+        else:
+            conn = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASS,
+                port=DB_PORT,
+                sslmode="require"
+            )
         return conn
     except Exception as e:
         print(f"Error connecting to DB: {e}")
